@@ -1,4 +1,5 @@
 #pragma once
+#include "Errors.h"
 #include <iostream>
 using namespace std;
 
@@ -8,6 +9,16 @@ class Array {
 	int size = 0;
 public:
 	Array(int size) {
+		try {
+			if (size < 0) {
+				throw ErrorNegativeSize();
+			}
+		}
+		catch (ErrorNegativeSize a) {
+			a.printErrorName();
+			cout << "Created with Size = 0\n";
+			return;
+		}
 		delete[] data;
 		this->size = size;
 		data = new T[size];
@@ -24,19 +35,51 @@ public:
 		delete[] data;
 	}
 	void Set(T dat, int index) {
+		try {
+			if (index < 0) {
+				throw ErrorNegativeIndex();
+			}
+			else if (index >= size) {
+				throw ErrorUnknownIndex();
+			}
+		}
+		catch (ErrorNegativeIndex a) {
+			a.printErrorName();
+			cout << "NOT Set\n";
+			return;
+		}
+		catch (ErrorUnknownIndex a) {
+			a.printErrorName();
+			cout << "NOT Set\n";
+			return;
+		}
 		if (index > -1) if (index < size) {
 			data[index] = dat;
 		}
 	}
-	template <typename T = int>
 	void SetRand(int min, int max) {
+		try {
+			if (max < min) {
+				throw ErrorInRand();
+			}
+		}
+		catch (ErrorInRand a) {
+			a.printErrorName();
+		}
 		int r = abs(max - min) + 1;
 		for (int i = 0; i < size; i++) {
 			data[i] = rand() % r + min;
 		}
 	}
-	template <typename T = double>
 	void SetRandDouble(int min, int max) {
+		try {
+			if (max < min) {
+				throw ErrorInRand();
+			}
+		}
+		catch (ErrorInRand a) {
+			a.printErrorName();
+		}
 		min *= 100;
 		max *= 100;
 		int r = abs(max - min) + 1;
@@ -45,15 +88,40 @@ public:
 		}
 	}
 	T Get(int index) {
-		if (index > -1) if (index < size) {
-			return data[index];
+		try {
+			if (index < 0) {
+				throw ErrorNegativeIndex();
+			}
+			else if (index >= size) {
+				throw ErrorUnknownIndex();
+			}
 		}
-		return 0;
+		catch (ErrorNegativeIndex a) {
+			a.printErrorName();
+			cout << "returned NULL\n";
+			return NULL;
+		}
+		catch (ErrorUnknownIndex a) {
+			a.printErrorName();
+			cout << "returned NULL\n";
+			return NULL;
+		}
+		return data[index];
 	}
 	int GetSize() {
 		return size;
 	}
 	void Resize(int size) {
+		try {
+			if (size < 0) {
+				throw ErrorNegativeSize();
+			}
+		}
+		catch (ErrorNegativeSize a) {
+			a.printErrorName();
+			cout << "NOT Resized\n";
+			return;
+		}
 		Array temp = *this;
 		delete[] data;
 		data = new T[size];
@@ -62,6 +130,15 @@ public:
 		}
 	}
 	friend Array operator * (Array & left, Array & right) {
+		try {
+			if (left.GetSize() != right.GetSize()) {
+				throw ErrorDifferentSizes();
+			}
+		}
+		catch (ErrorDifferentSizes a) {
+			a.printErrorName();
+			cout << "Getting the MIN size\n";
+		}
 		int min;
 		if (left.size < right.size) {
 			min = left.size;
